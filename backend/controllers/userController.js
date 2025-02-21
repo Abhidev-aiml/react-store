@@ -99,3 +99,12 @@ export const loginUser = async(req,res)=>{
         res.status(400).json({message:"Error logging in"})
     }
 }
+
+export const logoutUser = async (req,res) => {
+    res.cookie("jwt","",{
+        httpOnly:true,
+        expires:new Date(0)
+    })
+
+    res.status(200).json({message:"Logged out successfully"})
+}
