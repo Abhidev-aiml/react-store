@@ -105,3 +105,45 @@ export const logoutUser = async (req,res) => {
 
     res.status(200).json({message:"Logged out successfully"})
 }
+
+export const getCurrentUserProfile = async (req,res)=>{
+   try {
+    const currentUser = await prisma.user.findUnique({
+        where:{
+            id:req.user.id
+        },
+        select:{
+            id:true,username:true,password:true,isAdmin:true
+        }
+    }) 
+    if (!currentUser){
+        return res.status(400).json({message:"User not found"})
+    }
+    return res.status(200).json(currentUser)
+   } catch (error) {
+    return res.status(400).json({message:"Error finding user",error})
+    
+   }
+}
+
+export const updateCurrentUser = async (req,res) => {
+const {email,username,password} = req.body;
+
+try {
+    const updateData = {email,username}
+    if(password){
+        updateData.password = await bcrypt.hash(password,10)
+    }
+
+    const updatedUser = await prisma.user.update({
+        where:{id:req.user.id},
+        data:updateData,
+        select:{id:true,email:true,username:true,}
+    })
+    return res.status(200).json({message:"User updated successfully",updatedUser})
+} catch (error) {
+    return res.status(400).json({message:"Error updating user",error})
+    
+}
+
+}
