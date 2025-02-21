@@ -71,3 +71,31 @@ export const getUser = async(req,res)=>{
     
    }
 }
+
+export const loginUser = async(req,res)=>{
+    const {email,password} = req.body;
+
+    try {
+        const prevUser = await prisma.user.findUnique({
+            where:{
+                email
+            }
+        })
+        if(prevUser){
+            const isValidPassword = await bcrypt.compare(password,prevUser.password)
+    
+            if (isValidPassword) {
+                generateToken(res,prevUser.id)
+                res.status(200).json(prevUser)
+                return
+            } else {
+                res.status(400).json({message:"Invalid password"})
+            }
+        } 
+        else {
+            res.status(400).json({message:"Invalid credentials"})
+        }
+    } catch (error) {
+        res.status(400).json({message:"Error logging in"})
+    }
+}
