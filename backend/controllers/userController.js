@@ -52,22 +52,19 @@ export const createUser = async (req,res) =>
     }
 }
 
-export const getUser = async(req,res)=>{
-    const {email,username} = req.body
+export const getUsers = async(req,res)=>{
    try {
-    const user = await prisma.user.findUnique({
-        where:{
-            email:email // add fn to get users by either email or username
-        }
+    const users = await prisma.user.findMany({
+
     })
-    if(!user){
-        return res.status(400).json({message:"User not found"})
+    if(!users){
+        return res.status(400).json({message:"Users not found"})
     }
-    return res.json(user)
+    return res.json(users)
     
     
    } catch (error) {
-    return res.status(400).json({message:"Error finding user"})
+    return res.status(400).json({message:"Error finding users"})
     
    }
 }

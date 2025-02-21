@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-export const authMiddleware = async(req,res,next)=>{
+export const authenticateUser = async(req,res,next)=>{
     const token = req.cookies.jwt
 
     if (!token) {
@@ -16,7 +16,7 @@ export const authMiddleware = async(req,res,next)=>{
             where:{
                 id:decoded.userId
             },
-            select:{id:true,username:true,email:true}
+            select:{id:true,username:true,email:true,isAdmin:true}
         })
         if(!user){
             return res.status(401).json({message:"User not found"})
@@ -26,5 +26,13 @@ export const authMiddleware = async(req,res,next)=>{
     } catch (error) {
         return res.status(401).json({message:"Error authenticating user"})
         
+    }
+}
+
+export const authenticateAdmin = async (req, res, next) => {
+    if (req.user && req.user.isAdmin) {
+        next()
+    } else {
+        return res.status(403).json({ message: "Not authorized as an admin" }) 
     }
 }

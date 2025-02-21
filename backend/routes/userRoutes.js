@@ -1,9 +1,11 @@
 import { Router } from "express"
-import { createUser, getUser,loginUser, logoutUser } from "../controllers/userController.js"
+import { createUser,getUsers,loginUser, logoutUser } from "../controllers/userController.js"
+import { authenticateAdmin, authenticateUser } from "../middlewares/authMiddleware.js"
+
 
 const router = Router()
 
-router.get('/',getUser)
+router.get('/',authenticateUser,authenticateAdmin, getUsers)
 router.post('/',createUser)
 router.post('/auth',loginUser)
 router.post('/logout',logoutUser)
