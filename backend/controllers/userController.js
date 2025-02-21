@@ -147,3 +147,34 @@ try {
 }
 
 }
+
+export const deleteUser = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id); // Convert if ID is an integer (check your schema)
+        
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const thisUser = await prisma.user.findUnique({
+            where: { id: userId }, // Ensure the ID type matches your schema
+        });
+
+        if (!thisUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (thisUser.isAdmin) {
+            return res.status(400).json({ message: "Cannot delete admin users" });
+        }
+
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        return res.status(200).json({ message: "User deleted successfully" });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error deleting user", error: error.message });
+    }
+};
