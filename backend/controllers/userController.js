@@ -178,3 +178,62 @@ export const deleteUser = async (req, res) => {
         return res.status(500).json({ message: "Error deleting user", error: error.message });
     }
 };
+
+export const getUserById = async (req,res)=>{
+    const userId = parseInt(req.params.id);
+    
+    try {
+        const userById = await prisma.user.findUnique({
+            where:{id:userId}
+        })
+        if(!userById){
+            return res.status(400).json({message:"User does not exists"})
+
+        }
+        return res.json(userById)
+        
+    } catch (error) {
+        return res.status(400).json({message:"Error finding user"})
+    }
+
+}
+
+export const updateUserById = async(req,res) => {
+    const userId = parseInt(req.params.id)
+    const {username,email,password,} = req.body
+
+    const isAdmin = Boolean(req.user.isAdmin)
+
+    try {
+        const user = await prisma.user.findUnique({
+            where:{
+                id:userId
+            }
+          
+            
+        })
+        if(!user){
+            return res.status(400).json({message:"User does not exist"})
+        }
+
+        const hashedPassword = await bcrypt.hash(password,10)
+       const updatedUser = await prisma.user.update({
+            where:{
+                id:userId
+            },
+            data:{
+                username:username,
+                email:email,
+                password:hashedPassword,
+                isAdmin:isAdmin
+            }
+        
+        })
+        return res.status(200).json({message:"User updated successfully",updatedUser})
+    } catch (error) {
+        return res.status(400).json({message:"Error updating user"})
+        
+    }
+
+}
+
